@@ -61,11 +61,6 @@ namespace MyDictionary
             throw new NotImplementedException();
         }
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
         public bool Remove(TKey key)
         {
             throw new NotImplementedException();
@@ -80,10 +75,58 @@ namespace MyDictionary
         {
             throw new NotImplementedException();
         }
+       
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        {
+            return new MyEnumerator(this);
+        }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             throw new NotImplementedException();
+        }
+
+
+        private class MyEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>
+        {
+            private readonly MyDictionary<TKey, TValue> _dictionary;
+            private int _pointer;
+            public KeyValuePair<TKey, TValue> Current
+            {
+                get
+                {
+                    if (_pointer >= 0 && _pointer < _dictionary._entries.Count)
+                    {
+                        var entry = _dictionary._entries[_pointer];
+                        return new KeyValuePair<TKey, TValue>(entry.key, entry.value);
+                    }
+                    throw new InvalidOperationException();
+                }
+            }
+
+            object IEnumerator.Current => Current;
+
+            public MyEnumerator(MyDictionary<TKey, TValue> dictionary)
+            {
+                _dictionary = dictionary;
+                _pointer = -1;
+            }
+
+            public bool MoveNext()
+            {
+                _pointer++;
+
+                return _pointer < _dictionary._entries.Count;
+            }
+
+            public void Reset()
+            {
+                _pointer = -1;
+            }
+
+            public void Dispose()
+            {
+            }
         }
     }
 }
