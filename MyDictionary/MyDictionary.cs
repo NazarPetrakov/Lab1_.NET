@@ -30,9 +30,9 @@ namespace MyDictionary
             set => throw new NotImplementedException();
         }
 
-        public ICollection<TKey> Keys => (ICollection<TKey>)_entries.Select(e => e.key);
+        public ICollection<TKey> Keys => GetCollection(entry => entry.key);        
 
-        public ICollection<TValue> Values => (ICollection<TValue>)_entries.Select(e => e.value);
+        public ICollection<TValue> Values => GetCollection(entry => entry.value)!;
 
         public int Count => _count;
 
@@ -171,11 +171,25 @@ namespace MyDictionary
             _buckets = newBuckets;
             _capacity = newCapacity;
         }
+        private ICollection<T> GetCollection<T>(Func<Entry<TKey, TValue>, T> selector)
+        {
+            List<T> collection = new List<T>(_count);
+            foreach (var entry in _entries)
+            {
+                if (entry != null)
+                {
+                    T selectedValue = selector(entry);
+                    collection.Add(selectedValue);
+                }
+            }
+            return collection;
+        }
 
         private class MyEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>
         {
             private readonly MyDictionary<TKey, TValue> _dictionary;
             private int _pointer;
+
 
             public MyEnumerator(MyDictionary<TKey, TValue> dictionary)
             {
@@ -192,10 +206,6 @@ namespace MyDictionary
                         var entry = _dictionary._entries[_pointer];
                         if (entry != null)
                             return new KeyValuePair<TKey, TValue>(entry.key, entry.value!);
-                        else
-                            return default;
-                            
-                        
                     }
                     throw new InvalidOperationException();
                 }
@@ -207,7 +217,16 @@ namespace MyDictionary
             {
                 _pointer++;
 
-                return _pointer < _dictionary._entries.Length;
+                while (_pointer < _dictionary._entries.Length)
+                {
+                    var entry = _dictionary._entries[_pointer];
+                    if (entry != null)
+                    {
+                        return true;
+                    }
+                    _pointer++;
+                }
+                return false;
             }
 
             public void Reset()
