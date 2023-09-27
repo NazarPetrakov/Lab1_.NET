@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace MyDictionary
 {
@@ -41,18 +42,17 @@ namespace MyDictionary
         public void Add(TKey key, TValue value)
         {
             if (key == null)
-            {
                 throw new ArgumentNullException(nameof(key));
-            }
-            //if (ContainsKey(key))
-            //{
-            //    throw new ArgumentException("An item with the same key already exists in the dictionary.");
-            //}
+            if (ContainsKey(key))
+                throw new ArgumentException("An item with the same key already exists in the dictionary.");
 
             uint hashCode = (uint)key.GetHashCode();
             int bucketIndex = GetBucketIndex(hashCode);
             int entryIndex = -1;
-           
+
+            if (_count >= _capacity)
+                Resize();
+
             for (int i = 0; i < _entries.Length; i++)
             {
                 if (_entries[i] == null)
@@ -61,10 +61,7 @@ namespace MyDictionary
                     break;
                 }
             }
-            if (_count >= _capacity || entryIndex is -1)
-            {
-                Resize();
-            }
+
             _entries[entryIndex] = new Entry<TKey, TValue>
             {
                 key = key,
@@ -93,7 +90,27 @@ namespace MyDictionary
 
         public bool ContainsKey(TKey key)
         {
-            throw new NotImplementedException();
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
+            uint hashCode = (uint)key.GetHashCode();
+            int bucketIndex = GetBucketIndex(hashCode);
+            int entryIndex = _buckets[bucketIndex] - 1;
+            int next = -2;
+
+            if(entryIndex <= -1)
+                return false;
+
+            do
+            {
+                Entry<TKey, TValue> entry = _entries[entryIndex];
+                next = entry.next;
+                if (hashCode == entry.hashCode)
+                    return true;
+                entryIndex = next;
+            } while (next != -1);
+
+            return false;
         }
 
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
@@ -125,15 +142,33 @@ namespace MyDictionary
         {
             return GetEnumerator();
         }
+
+        private void Resize()
+        {
+            int newCapacity = GetNextPrime(_capacity);
+            var newEntries = new Entry<TKey, TValue>[newCapacity];
+            _buckets = new int[newCapacity];
+
+            Array.Copy(_entries, newEntries, _count);
+            
+            for (int i = 0; i < newCapacity; i++)
+            {
+                if (newEntries[i] is null)
+                    break;
+                NewBucketsIndexes(newEntries, i);
+            }
+            _entries = newEntries;
+            _capacity = newCapacity;
+        }
+        private void NewBucketsIndexes(Entry<TKey, TValue>[] newEntries, int i)
+        {
+            uint hashCode = newEntries[i].hashCode;
+            int bucketIndex = GetBucketIndex(hashCode);
+            newEntries[i].next = _buckets[bucketIndex] - 1;
+            _buckets[bucketIndex] = i + 1;
+        }
         private int GetBucketIndex(uint hashCode)
         {
-            //int bucketIndex = (int)(hashCode % _buckets.Length);
-
-            //if (bucketIndex < 0)
-            //{
-            //    bucketIndex += _buckets.Length;
-            //}
-
             return (int)(hashCode % _buckets.Length);
         }
         private int GetNextPrime(int currentCapacity)
@@ -160,16 +195,6 @@ namespace MyDictionary
                     return newCapacity;
                 newCapacity++;
             }
-        }
-        private void Resize()
-        {
-            int newCapacity = GetNextPrime(_capacity);
-            int[] newBuckets = new int[newCapacity];
-            Entry<TKey, TValue>[] entries = new Entry<TKey, TValue>[newCapacity];
-
-            Array.Copy(_buckets, newBuckets, _count);
-            _buckets = newBuckets;
-            _capacity = newCapacity;
         }
         private ICollection<T> GetCollection<T>(Func<Entry<TKey, TValue>, T> selector)
         {
