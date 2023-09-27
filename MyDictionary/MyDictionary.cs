@@ -27,8 +27,25 @@ namespace MyDictionary
         }
         public TValue this[TKey key]
         {
-            get => throw new NotImplementedException();
-            set => throw new NotImplementedException();
+            get
+            {
+                Entry<TKey, TValue>? entry = FindEntryOfKey(key);
+
+                if (entry == null)
+                    throw new KeyNotFoundException($"Key \"{key}\" is not found");
+                return entry.value!;
+            }
+            set
+            {
+                if (key == null)
+                    throw new ArgumentNullException(nameof(key));
+
+                Entry<TKey, TValue>? entry = FindEntryOfKey(key);
+
+                if (entry == null)
+                    throw new KeyNotFoundException($"Key \"{key}\" is not found");
+                entry.value = value;
+            }
         }
 
         public ICollection<TKey> Keys => GetCollection(entry => entry.key);        
@@ -75,7 +92,7 @@ namespace MyDictionary
 
         public void Add(KeyValuePair<TKey, TValue> item)
         {
-            throw new NotImplementedException();
+            Add(item.Key, item.Value);
         }
 
         public void Clear()
@@ -85,32 +102,20 @@ namespace MyDictionary
 
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
-            throw new NotImplementedException();
+            if (item.Key is null)
+                throw new ArgumentNullException(nameof(item.Key));
+
+            Entry<TKey, TValue>? entry = FindEntryOfKey(item.Key);
+            return entry is not null && EqualityComparer<TValue>.Default.Equals(item.Value, entry.value);
         }
 
         public bool ContainsKey(TKey key)
         {
-            if (key == null)
+            if (key is null)
                 throw new ArgumentNullException(nameof(key));
 
-            uint hashCode = (uint)key.GetHashCode();
-            int bucketIndex = GetBucketIndex(hashCode);
-            int entryIndex = _buckets[bucketIndex] - 1;
-            int next = -2;
-
-            if(entryIndex <= -1)
-                return false;
-
-            do
-            {
-                Entry<TKey, TValue> entry = _entries[entryIndex];
-                next = entry.next;
-                if (hashCode == entry.hashCode)
-                    return true;
-                entryIndex = next;
-            } while (next != -1);
-
-            return false;
+            Entry<TKey, TValue>? entry = FindEntryOfKey(key);
+            return entry is not null;
         }
 
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
@@ -155,22 +160,20 @@ namespace MyDictionary
             {
                 if (newEntries[i] is null)
                     break;
-                NewBucketsIndexes(newEntries, i);
+                NewBucketIndexes(newEntries, i);
             }
             _entries = newEntries;
             _capacity = newCapacity;
         }
-        private void NewBucketsIndexes(Entry<TKey, TValue>[] newEntries, int i)
+        private void NewBucketIndexes(Entry<TKey, TValue>[] newEntries, int i)
         {
             uint hashCode = newEntries[i].hashCode;
             int bucketIndex = GetBucketIndex(hashCode);
             newEntries[i].next = _buckets[bucketIndex] - 1;
             _buckets[bucketIndex] = i + 1;
         }
-        private int GetBucketIndex(uint hashCode)
-        {
-            return (int)(hashCode % _buckets.Length);
-        }
+        private int GetBucketIndex(uint hashCode) => 
+            (int)(hashCode % _buckets.Length);
         private int GetNextPrime(int currentCapacity)
         {
             bool IsPrime(int number)
@@ -208,6 +211,27 @@ namespace MyDictionary
                 }
             }
             return collection;
+        }
+        private Entry<TKey, TValue>? FindEntryOfKey(TKey key)
+        {
+            uint hashCode = (uint)key.GetHashCode();
+            int bucketIndex = GetBucketIndex(hashCode);
+            int entryIndex = _buckets[bucketIndex] - 1;
+            int next = -2;
+
+            if (entryIndex <= -1)
+                return null;
+
+            do
+            {
+                Entry<TKey, TValue> entry = _entries[entryIndex];
+                next = entry.next;
+                if (hashCode == entry.hashCode)
+                    return entry;
+                entryIndex = next;
+            } while (next != -1);
+
+            return null;
         }
 
         private class MyEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>
