@@ -54,7 +54,7 @@ namespace MyDictionary
 
         public int Count => _count;
 
-        public bool IsReadOnly => throw new NotImplementedException();
+        public bool IsReadOnly => false;
 
         public void Add(TKey key, TValue value)
         {
@@ -97,7 +97,9 @@ namespace MyDictionary
 
         public void Clear()
         {
-            throw new NotImplementedException();
+            _entries = new Entry<TKey, TValue>[_capacity];
+            _buckets = new int[_capacity];
+            _count = 0;
         }
 
         public bool Contains(KeyValuePair<TKey, TValue> item)
@@ -135,7 +137,18 @@ namespace MyDictionary
 
         public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
         {
-            throw new NotImplementedException();
+            if (key is null)
+                throw new ArgumentNullException(nameof(key));
+
+            Entry<TKey, TValue>? entry = FindEntryOfKey(key);
+            if (entry is null)
+            {
+                value = default;
+                return false;
+            }
+                
+            value = entry.value!;
+            return true;
         }
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
