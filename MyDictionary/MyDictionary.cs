@@ -122,17 +122,57 @@ namespace MyDictionary
 
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
+            if (arrayIndex < 0 || arrayIndex >= array.Length)
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            if (_count > array.Length - arrayIndex)
+                throw new ArgumentException("The destination array is not large enough to copy all the elements.");
+
+            foreach (var entry in _entries)
+            {
+                if (entry != null)
+                    array[arrayIndex++] = new KeyValuePair<TKey, TValue>(entry.key, entry.value!);
+            }
         }
 
         public bool Remove(TKey key)
         {
-            throw new NotImplementedException();
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
+            Entry<TKey, TValue>? entryToRemove = FindEntryOfKey(key);
+
+            if (entryToRemove == null)
+                throw new KeyNotFoundException($"Key \"{key}\" is not found");
+
+            for (int i = 0; i < _entries.Length; i++)
+            {
+                if (_entries[i] == entryToRemove)
+                {
+                    _entries[i] = default!;
+                    _count--;
+                    return true;
+                }
+            }
+            return false;
+
         }
 
         public bool Remove(KeyValuePair<TKey, TValue> item)
         {
-            throw new NotImplementedException();
+            if (item.Key == null)
+                throw new ArgumentNullException(nameof(item.Key));
+
+            TKey key = item.Key;
+
+            if (ContainsKey(key) && TryGetValue(key, out TValue? value) && EqualityComparer<TValue>.Default.Equals(value, item.Value))
+            {
+                Remove(key);
+                return true;
+            }
+
+            return false;
         }
 
         public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
