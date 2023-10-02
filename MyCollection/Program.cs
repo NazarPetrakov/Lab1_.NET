@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using MyDictionary;
+﻿using MyDictionary;
 
 var myDictionary = new MyDictionary<int, string>();
 
@@ -11,7 +10,6 @@ myDictionary.ChangedValue += (sender, args) =>
     Console.WriteLine($"Value by key [{args.key}] has been set to [{args.value}]");
 myDictionary.Cleared += (sender, args) => 
     Console.WriteLine($"Dictionary has been cleared");
-
 
 myDictionary.Print();
 
@@ -32,7 +30,6 @@ Console.WriteLine($"Dictionary contains key 4? " +
     $"{myDictionary.ContainsKey(4)}");
 Console.WriteLine($"Dictionary contains pair [4, !five]? " +
     $"{myDictionary.Contains(new KeyValuePair<int, string>(4, "!five"))}");
-
 
 myDictionary.Clear();
 myDictionary.Print();

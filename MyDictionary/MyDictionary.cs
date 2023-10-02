@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace MyDictionary
 {
@@ -12,10 +10,6 @@ namespace MyDictionary
         private int _capacity;
         private int _count = 0;
 
-        public event EventHandler<MyDictionaryEventArgs<TKey, TValue>>? AddedPair;
-        public event EventHandler<MyDictionaryEventArgs<TKey, TValue>>? RemovedPair;
-        public event EventHandler<MyDictionaryEventArgs<TKey, TValue>>? ChangedValue;
-        public event EventHandler<EventArgs>? Cleared;
         public MyDictionary() : this(3) { }
         public MyDictionary(int capacity)
         {
@@ -30,6 +24,12 @@ namespace MyDictionary
             _entries = new Entry<TKey, TValue>[capacity];
             _capacity = capacity;
         }
+
+        public event EventHandler<MyDictionaryEventArgs<TKey, TValue>>? AddedPair;
+        public event EventHandler<MyDictionaryEventArgs<TKey, TValue>>? RemovedPair;
+        public event EventHandler<MyDictionaryEventArgs<TKey, TValue>>? ChangedValue;
+        public event EventHandler<EventArgs>? Cleared;
+
         public TValue this[TKey key]
         {
             get
@@ -165,8 +165,6 @@ namespace MyDictionary
                 }
             }
             return false;
-
-
         }
 
         public bool Remove(KeyValuePair<TKey, TValue> item)
@@ -319,7 +317,6 @@ namespace MyDictionary
         {
             private readonly MyDictionary<TKey, TValue> _dictionary;
             private int _pointer;
-
 
             public MyEnumerator(MyDictionary<TKey, TValue> dictionary)
             {
