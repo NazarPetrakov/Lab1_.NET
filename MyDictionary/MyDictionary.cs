@@ -11,6 +11,11 @@ namespace MyDictionary
         private int[] _buckets;
         private int _capacity;
         private int _count = 0;
+
+        public event EventHandler<MyDictionaryEventArgs<TKey, TValue>>? AddedPair;
+        public event EventHandler<MyDictionaryEventArgs<TKey, TValue>>? RemovedPair;
+        public event EventHandler<MyDictionaryEventArgs<TKey, TValue>>? ChangedValue;
+        public event EventHandler<EventArgs>? Cleared;
         public MyDictionary() : this(3) { }
         public MyDictionary(int capacity)
         {
@@ -45,6 +50,7 @@ namespace MyDictionary
                 if (entry == null)
                     throw new KeyNotFoundException($"Key \"{key}\" is not found");
                 entry.value = value;
+                ChangedValue?.Invoke(this, new MyDictionaryEventArgs<TKey, TValue>(key, value));
             }
         }
 
@@ -88,6 +94,7 @@ namespace MyDictionary
             };
             _buckets[bucketIndex] = entryIndex + 1;
             _count++;
+            AddedPair?.Invoke(this, new MyDictionaryEventArgs<TKey, TValue>(key, value));
         }
 
         public void Add(KeyValuePair<TKey, TValue> item)
@@ -100,6 +107,7 @@ namespace MyDictionary
             _entries = new Entry<TKey, TValue>[_capacity];
             _buckets = new int[_capacity];
             _count = 0;
+            Cleared?.Invoke(this, new EventArgs());
         }
 
         public bool Contains(KeyValuePair<TKey, TValue> item)
@@ -152,10 +160,12 @@ namespace MyDictionary
                 {
                     _entries[i] = default!;
                     _count--;
+                    RemovedPair?.Invoke(this, new MyDictionaryEventArgs<TKey, TValue>(entryToRemove.key, entryToRemove.value!));
                     return true;
                 }
             }
             return false;
+
 
         }
 
@@ -199,6 +209,20 @@ namespace MyDictionary
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+        public void Print()
+        {
+            if (_count is 0)
+                Console.WriteLine("No pairs in dictionary");
+            else
+            {
+                Console.WriteLine("-------------------------------\nYour dictionary:");
+                foreach (var kvp in this)
+                {
+                    Console.WriteLine($"|key: {kvp.Key}|\t|value: {kvp.Value}|");
+                }
+                Console.WriteLine("-------------------------------");
+            }
         }
 
         private void Resize()
@@ -278,7 +302,11 @@ namespace MyDictionary
             do
             {
                 Entry<TKey, TValue> entry = _entries[entryIndex];
+                if (entry is null)
+                    return null;
+
                 next = entry.next;
+
                 if (hashCode == entry.hashCode)
                     return entry;
                 entryIndex = next;
