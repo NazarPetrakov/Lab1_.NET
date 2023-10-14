@@ -11,18 +11,18 @@ myDictionary.ChangedValue += (sender, args) =>
 myDictionary.Cleared += (sender, args) => 
     Console.WriteLine($"Dictionary has been cleared");
 
-myDictionary.Print();
+Print(myDictionary);
 
 myDictionary.Add(1, "one");
 myDictionary.Add(new KeyValuePair<int, string>(2, "two"));
 myDictionary.Add(4, "!five!");
 myDictionary[4] = "four";
-myDictionary.Print();
+Print(myDictionary);
 
 myDictionary.Remove(1);
 //myDictionary.Remove(9);
 myDictionary.Remove(new KeyValuePair<int, string>(2, "two"));
-myDictionary.Print();
+Print(myDictionary);
 
 Console.WriteLine($"Is there a value in the dictionary by the key 2? " +
     $"{myDictionary.TryGetValue(2, out string? two)}");
@@ -32,4 +32,19 @@ Console.WriteLine($"Dictionary contains pair [4, !five]? " +
     $"{myDictionary.Contains(new KeyValuePair<int, string>(4, "!five"))}");
 
 myDictionary.Clear();
-myDictionary.Print();
+Print(myDictionary);
+
+static void Print<TKey, TValue>(MyDictionary<TKey, TValue> myDictionary)
+{
+    if (myDictionary.Count is 0)
+        Console.WriteLine("No pairs in dictionary");
+    else
+    {
+        Console.WriteLine("-------------------------------\nYour dictionary:");
+        foreach (var kvp in myDictionary)
+        {
+            Console.WriteLine($"|key: {kvp.Key}|\t|value: {kvp.Value}|");
+        }
+        Console.WriteLine("-------------------------------");
+    }
+}

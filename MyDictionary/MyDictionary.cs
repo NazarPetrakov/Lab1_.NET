@@ -208,21 +208,7 @@ namespace MyDictionary
         {
             return GetEnumerator();
         }
-        public void Print()
-        {
-            if (_count is 0)
-                Console.WriteLine("No pairs in dictionary");
-            else
-            {
-                Console.WriteLine("-------------------------------\nYour dictionary:");
-                foreach (var kvp in this)
-                {
-                    Console.WriteLine($"|key: {kvp.Key}|\t|value: {kvp.Value}|");
-                }
-                Console.WriteLine("-------------------------------");
-            }
-        }
-
+  
         private void Resize()
         {
             int newCapacity = GetNextPrime(_capacity);
@@ -333,6 +319,7 @@ namespace MyDictionary
                         var entry = _dictionary._entries[_pointer];
                         if (entry != null)
                             return new KeyValuePair<TKey, TValue>(entry.key, entry.value!);
+                        throw new NullReferenceException();
                     }
                     throw new InvalidOperationException();
                 }
