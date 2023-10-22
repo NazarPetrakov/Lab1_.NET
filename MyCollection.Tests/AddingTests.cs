@@ -1,6 +1,6 @@
 ﻿namespace MyCollection.Tests
 {
-    public class MyCollectionAddingTests
+    public class AddingTests
     {
         [Fact]
         public void AddItem_NullKey_ArgumentNullException()

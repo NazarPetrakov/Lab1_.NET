@@ -1,6 +1,6 @@
 ﻿namespace MyCollection.Tests
 {
-    public class MyCollectionCreationTests
+    public class CreationTests
     {
         [Fact]
         public void CreateMyDictionary_WithoutParams_EmptyDictionary() 

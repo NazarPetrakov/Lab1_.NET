@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MyCollection.Tests
 {
-    public class MyCollectionRemovingTests
+    public class RemovingTests
     {
         [Fact]
         public void RemoveItem_NullKey_ArgumentNullException()

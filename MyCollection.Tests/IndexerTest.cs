@@ -1,6 +1,6 @@
 ﻿namespace MyCollection.Tests
 {
-    public class MyCollectionIndexerTest
+    public class IndexerTest
     {
         [Fact]
         public void GetValueIndexer_ValueByKey1_One()

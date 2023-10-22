@@ -2,7 +2,7 @@
 
 namespace MyCollection.Tests
 {
-    public class MyCollectionPropTests
+    public class PropTests
     {
         [Fact]
         public void IsReadOnlyProp_ShouldReturnFalse()

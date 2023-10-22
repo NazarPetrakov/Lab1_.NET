@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MyCollection.Tests
 {
-    public class MyCollectionContainsTests
+    public class ContainsTests
     {
         [Fact]
         public void ContainsKeyValue_ExistingPair_ReturnsTrue()

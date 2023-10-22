@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MyCollection.Tests
 {
-    public class MyCollectionCopyToTests
+    public class CopyToTests
     {
         [Fact]
         public void CopyTo_CopiesElementsToDestinationArray()
