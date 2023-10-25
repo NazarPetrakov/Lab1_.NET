@@ -12,6 +12,10 @@
                 new KeyValuePair<object, object>("one", 1 ),
                 new KeyValuePair<object, object>("ONE", 1 ),
             };
+            yield return new object[] {
+                new KeyValuePair<object, object>(1.1, 1 ),
+                new KeyValuePair<object, object>(1.2, 1 ),
+            };
         }
     }
 }

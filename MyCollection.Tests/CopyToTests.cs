@@ -17,7 +17,6 @@ namespace MyCollection.Tests
                 { 2, "Two" },
                 { 3, "Three" }
             };
-
             var array = new KeyValuePair<int, string>[3];
 
             myDictionary.CopyTo(array, 0);

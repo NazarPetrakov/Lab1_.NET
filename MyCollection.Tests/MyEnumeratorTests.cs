@@ -11,17 +11,13 @@ namespace MyCollection.Tests
         [Fact]
         public void MyEnumerator_Current_ValidIndex_ReturnsKeyValuePair()
         {
-            // Arrange
             var myDictionary = new MyDictionary<int, string>();
             myDictionary.Add(1, "One");
-
             var enumerator = myDictionary.GetEnumerator();
 
-            // Act
             enumerator.MoveNext();
             var currentKeyValuePair = enumerator.Current;
 
-            // Assert
             Assert.Equal(new KeyValuePair<int, string>(1, "One"), currentKeyValuePair);
         }
 
@@ -58,6 +54,5 @@ namespace MyCollection.Tests
             Assert.True(enumerator.MoveNext());
             Assert.Equal(new KeyValuePair<int, string>(1, "One"), enumerator.Current);
         }
-
-    }
+     }
 }
